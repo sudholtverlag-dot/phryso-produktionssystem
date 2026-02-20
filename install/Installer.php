@@ -71,7 +71,9 @@ final class Installer
         $schemaSql = (string) file_get_contents($this->sqlInstallPath);
 
         try {
-            $pdo->beginTransaction();
+            if (!$pdo->inTransaction()) {
+                $pdo->beginTransaction();
+            }
 
             $pdo->exec($schemaSql);
 
@@ -84,7 +86,9 @@ final class Installer
                 ':role' => 'admin',
             ]);
 
-            $pdo->commit();
+            if ($pdo->inTransaction()) {
+                $pdo->commit();
+            }
         } catch (Throwable $e) {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
