@@ -2,31 +2,30 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/Installer.php';
+$lockPath = dirname(__DIR__) . '/config/.installed';
 
-if (!Installer::isInstalled()) {
-    header('Location: /install/index.php');
+if (!is_file($lockPath)) {
+    header('Location: /install/index.php', true, 302);
     exit;
 }
 ?>
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Installation abgeschlossen</title>
-  <link rel="stylesheet" href="/install/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Installation abgeschlossen</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; }
+        .card { max-width: 680px; border: 1px solid #ddd; border-radius: 8px; padding: 2rem; }
+        a.button { display: inline-block; margin-top: 1rem; background: #005fcc; color: #fff; padding: 0.8rem 1.2rem; text-decoration: none; border-radius: 4px; }
+    </style>
 </head>
 <body>
-  <main class="container">
-    <div class="progress">
-      <div class="step done">Schritt 1: Systemprüfung</div>
-      <div class="step done">Schritt 2: Konfiguration</div>
-      <div class="step active">Abschluss</div>
-    </div>
-
-    <h1>Installation erfolgreich abgeschlossen.</h1>
-    <a class="btn" href="/public/index.php">Zum Login</a>
-  </main>
+<div class="card">
+    <h1>Installation erfolgreich</h1>
+    <p>Das PHRYSO-System wurde erfolgreich installiert. Sie können sich jetzt im System anmelden.</p>
+    <a class="button" href="/public/index.php">Zum Login</a>
+</div>
 </body>
 </html>

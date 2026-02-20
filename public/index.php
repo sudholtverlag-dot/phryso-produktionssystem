@@ -2,25 +2,45 @@
 
 declare(strict_types=1);
 
-$installedInfo = isset($_GET['installed']) ? 'System bereits installiert.' : '';
+require_once __DIR__ . '/../app/bootstrap.php';
+
+if (Auth::check()) {
+    redirect('/dashboard.php');
+}
+
+$error = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!Csrf::validate($_POST['csrf_token'] ?? null)) {
+        $error = 'Ungültiges CSRF-Token.';
+    } else {
+        $username = trim((string) ($_POST['username'] ?? ''));
+        $password = (string) ($_POST['password'] ?? '');
+
+        $pdo = Database::getConnection();
+        if (Auth::attemptLogin($pdo, $username, $password)) {
+            redirect('/dashboard.php');
+        }
+
+        $error = 'Login fehlgeschlagen.';
+    }
+}
 ?>
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PHRYSO Redaktionssystem</title>
-  <style>
-    body{font-family:Arial,sans-serif;background:#f5f7fb;margin:0}
-    main{max-width:760px;margin:60px auto;background:#fff;padding:24px;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.06)}
-    .info{background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a;padding:10px;border-radius:6px;margin-bottom:14px}
-  </style>
+    <meta charset="UTF-8">
+    <title>Login</title>
 </head>
 <body>
-  <main>
-    <?php if ($installedInfo !== ''): ?><div class="info"><?= htmlspecialchars($installedInfo, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
-    <h1>PHRYSO Redaktionssystem</h1>
-    <p>Das System ist bereit. Bitte mit dem Admin-Account anmelden.</p>
-  </main>
+<h1>Produktionssystem Login</h1>
+<?php if ($error !== ''): ?>
+    <p style="color:red"><?= e($error) ?></p>
+<?php endif; ?>
+<form method="post">
+    <input type="hidden" name="csrf_token" value="<?= e(Csrf::token()) ?>">
+    <label>Username <input type="text" name="username" required></label><br>
+    <label>Passwort <input type="password" name="password" required></label><br>
+    <button type="submit">Einloggen</button>
+</form>
 </body>
 </html>
